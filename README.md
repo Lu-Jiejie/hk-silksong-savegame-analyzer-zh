@@ -4,8 +4,10 @@
 
 添加了完整的中文支持。
 
----
+汉化网址：https://silksong-analyzer.netlify.app/
 
+---
+https://silksong-analyzer.netlify.app/
 ## 以下是原 README
 
 For all the completionists out there, I created a tool that helps you track your in-game progress directly from your savefile.
