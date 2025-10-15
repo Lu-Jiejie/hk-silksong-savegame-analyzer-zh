@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import type { ChangeEvent, DragEvent } from "react";
+import { useI18n } from "../i18n";
 
 interface FileUploadProps {
   fileName: string;
@@ -9,6 +10,7 @@ interface FileUploadProps {
 }
 
 export function FileUpload({ fileName, onFileSelected, onDrop, onDragOver }: FileUploadProps) {
+  const { t } = useI18n();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -23,7 +25,7 @@ export function FileUpload({ fileName, onFileSelected, onDrop, onDragOver }: Fil
       onClick={() => inputRef.current?.click()}
       className="border-2 border-dashed border-black rounded-lg p-5 text-center cursor-pointer hover:bg-[#82979e] text-white"
     >
-      {fileName ? <p>{fileName} selected</p> : <p>Drag and drop a Savefile here, or click to browse and upload it...</p>}
+      {fileName ? <p>{fileName} {t('fileUpload.fileSelected')}</p> : <p>{t('fileUpload.dragAndDrop')}</p>}
       <input
         ref={inputRef}
         type="file"

@@ -72,7 +72,7 @@ export function isItemUnlockedInPlayerSave(itemParsingInfo: ParsingInfo | Parsin
     flagMulti: (flagNames: string[]) => {
       let unlocked = false;
       for (const flagName of flagNames) {
-        if (!!playerData[flagName]) {
+        if (playerData[flagName]) {
           unlocked = true;
           break;
         }

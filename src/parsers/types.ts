@@ -15,6 +15,7 @@ export type ParsingInfo = FlagParsingInfo | FlagMultiParsingInfo | FlagIntParsin
 export type ParsingInfoMulti = ParsingInfo[];
 
 export type CategoryItem = {
+  id: string; // Unique identifier for i18n, never changes
   name: string;
   section?: string;
   whichAct: 0 | 1 | 2 | 3;
@@ -27,18 +28,21 @@ export type CategoryItem = {
 };
 
 export type CategorySection = {
+  id?: string; // Unique identifier for i18n
   name: string | undefined;
   description: string | undefined;
   items: CategoryItem[];
 };
 
 export type TrackableCategory = {
+  id?: string; // Unique identifier for i18n
   name: string;
   description: string;
   items: CategoryItem[];
 };
 
 export type NormalisedTrackableCategory = {
+  id?: string; // Unique identifier for i18n
   name: string;
   description: string;
   sections: CategorySection[];

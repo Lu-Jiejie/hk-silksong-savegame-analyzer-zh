@@ -8,6 +8,7 @@ import { TotalProgress } from "./components/TotalProgress";
 import { useSaveFile } from "./hooks/useSaveFile";
 import { tabDefinitions } from "./components/tabs";
 import type { TabId } from "./components/tabs/types";
+import { useI18n, type TranslationKey } from "./i18n";
 
 type PlatformId = "SteamWindows" | "SteamDeck" | "GamePassPC" | "macOS" | "Linux" | "Switch";
 
@@ -18,86 +19,85 @@ type PlatformOption = {
   note?: ReactNode;
 };
 
-const PLATFORM_OPTIONS: PlatformOption[] = [
-  {
-    id: "SteamWindows",
-    label: "Steam (Windows)",
-    path: "%USERPROFILE%/AppData/LocalLow/Team Cherry/Hollow Knight Silksong/",
-    note: (
-      <>
-        /SteamID/userX.dat (where X = 1-4, denotes the save slot)  {" "}
-        <a
-          href="https://store.steampowered.com/account/remotestorageapp/?appid=1030300"
-          className="underline text-green-300 hover:text-green-200"
-          target="_blank"
-          rel="noreferrer"
-        >
-          (Steam Cloud saves)
-        </a>
-      </>
-    ),
-  },
-  {
-    id: "SteamDeck",
-    label: "Steam Deck (Linux)",
-    path: "~/.local/share/Team Cherry/Hollow Knight Silksong/",
-    note: (
-      <>
-        /SteamID/userX.dat (where X = 1-4, denotes the save slot)  {" "}
-        <a
-          href="https://store.steampowered.com/account/remotestorageapp/?appid=1030300"
-          className="underline text-green-300 hover:text-green-200"
-          target="_blank"
-          rel="noreferrer"
-        >
-          (Steam Cloud saves)
-        </a>
-      </>
-    ),
-  },
-  {
-    id: "GamePassPC",
-    label: "Game Pass (Windows)",
-    path: "%LOCALAPPDATA%/Packages/TeamCherry.Silksong_y4jvztpgccj42/SystemAppData/wgs/",
-    note: "Savegame file has a really long name and doesn't have a file extension",
-  },
-  {
-    id: "macOS",
-    label: "macOS",
-    path: "~/Library/Application Support/unity.Team-Cherry.Silksong/",
-  },
-  {
-    id: "Linux",
-    label: "Linux",
-    path: "~/.config/unity3d/Team Cherry/Hollow Knight Silksong/",
-    note: (
-      <>
-        /(a folder with random characters)/userX.dat (where X = 1-4, denotes the save slot)
-      </>
-    ),
-  },
-  {
-    id: "Switch",
-    label: "Nintendo Switch",
-    path: "sdmc:/atmosphere/contents/<title-id>/saves/hollow_knight_silksong/",
-    note: (
-      <>
-        Not a simple process! Requires Homebrew and JKSV (
-        <a
-          className="underline text-green-300 hover:text-green-200"
-          href="https://www.reddit.com/r/HollowKnight/comments/1dacmy1/gamesave_from_switch_to_steam/"
-          rel="noreferrer"
-          target="_blank"
-        >
-          Reddit guide
-        </a>
-        )
-      </>
-    ),
-  },
-];
+function getPlatformOptions(t: (key: TranslationKey) => string): PlatformOption[] {
+  return [
+    {
+      id: "SteamWindows",
+      label: "Steam (Windows)",
+      path: "%USERPROFILE%/AppData/LocalLow/Team Cherry/Hollow Knight Silksong/",
+      note: (
+        <>
+          {t('platforms.steamSaveslot')}{" "}
+          <a
+            href="https://store.steampowered.com/account/remotestorageapp/?appid=1030300"
+            className="underline text-green-300 hover:text-green-200"
+            target="_blank"
+            rel="noreferrer"
+          >
+            ({t('platforms.steamCloudSaves')})
+          </a>
+        </>
+      ),
+    },
+    {
+      id: "SteamDeck",
+      label: "Steam Deck (Linux)",
+      path: "~/.local/share/Team Cherry/Hollow Knight Silksong/",
+      note: (
+        <>
+          {t('platforms.steamSaveslot')}{" "}
+          <a
+            href="https://store.steampowered.com/account/remotestorageapp/?appid=1030300"
+            className="underline text-green-300 hover:text-green-200"
+            target="_blank"
+            rel="noreferrer"
+          >
+            ({t('platforms.steamCloudSaves')})
+          </a>
+        </>
+      ),
+    },
+    {
+      id: "GamePassPC",
+      label: "Game Pass (Windows)",
+      path: "%LOCALAPPDATA%/Packages/TeamCherry.Silksong_y4jvztpgccj42/SystemAppData/wgs/",
+      note: t('platforms.gamePassNote'),
+    },
+    {
+      id: "macOS",
+      label: "macOS",
+      path: "~/Library/Application Support/unity.Team-Cherry.Silksong/",
+    },
+    {
+      id: "Linux",
+      label: "Linux",
+      path: "~/.config/unity3d/Team Cherry/Hollow Knight Silksong/",
+      note: t('platforms.linuxFolder'),
+    },
+    {
+      id: "Switch",
+      label: "Nintendo Switch",
+      path: "sdmc:/atmosphere/contents/<title-id>/saves/hollow_knight_silksong/",
+      note: (
+        <>
+          {t('platforms.switchNote')} (
+          <a
+            className="underline text-green-300 hover:text-green-200"
+            href="https://www.reddit.com/r/HollowKnight/comments/1dacmy1/gamesave_from_switch_to_steam/"
+            rel="noreferrer"
+            target="_blank"
+          >
+            {t('platforms.switchGuide')}
+          </a>
+          )
+        </>
+      ),
+    },
+  ];
+}
 
 export default function App() {
+  const { t, locale, setLocale } = useI18n();
   const {
     fileName,
     decrypted,
@@ -114,8 +114,9 @@ export default function App() {
   const [showToast, setShowToast] = useState(false);
   const [activePlatformId, setActivePlatformId] = useState<PlatformId>("SteamWindows");
 
+  const platformOptions = getPlatformOptions(t);
   const activePlatform =
-    PLATFORM_OPTIONS.find(platform => platform.id === activePlatformId) ?? PLATFORM_OPTIONS[0];
+    platformOptions.find(platform => platform.id === activePlatformId) ?? platformOptions[0];
 
   const handleCopyPath = () => {
     navigator.clipboard.writeText(activePlatform.path);
@@ -137,13 +138,22 @@ export default function App() {
       }}
     >
       <div className="w-full max-w-4xl bg-[#1a1313cc] rounded-lg shadow-lg p-5 mt-0 space-y-5 backdrop-blur-sm">
-        <h1 className="text-2xl font-bold text-white text-center">
-          Hollow Knight: Silksong Savegame Analyzer
-        </h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-white text-center flex-1">
+            {t('app.title')}
+          </h1>
+          <button
+            type="button"
+            onClick={() => setLocale(locale === 'en' ? 'zh-CN' : 'en')}
+            className="px-3 py-1 text-sm font-semibold rounded border border-white/30 text-white/80 hover:border-white hover:text-white transition-colors bg-transparent"
+          >
+            {locale === 'en' ? '中文' : 'English'}
+          </button>
+        </div>
 
         <div className="text-center text-sm">
           <div className="flex flex-wrap justify-center gap-2 mb-3">
-            {PLATFORM_OPTIONS.map(platform => {
+            {platformOptions.map(platform => {
               const isActive = platform.id === activePlatform.id;
 
               return (
@@ -186,7 +196,7 @@ export default function App() {
 
         {showToast && (
           <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#454d5c] text-white px-4 py-2 rounded shadow-lg z-50">
-            Copied to clipboard.
+            {t('app.copiedToClipboard')}
           </div>
         )}
 
@@ -211,15 +221,14 @@ export default function App() {
               savePlain,
             })
           ) : (
-            <div className="text-white text-center">No Savefile loaded.</div>
+            <div className="text-white text-center">{t('app.noSavefileLoaded')}</div>
           )}
         </div>
         <footer className="w-full mt-8 py-4  text-white text-center text-sm  ">
-          Made by <a href="https://github.com/br3zzly" target="_blank" className="underline">Br3zzly</a><br />
-          With help from <a href="https://github.com/theezeb" target="_blank" className="underline">theezeb</a>, <a href="https://github.com/btastic" target="_blank" className="underline">btastic</a>, <a href="https://github.com/TheSaneWriter" target="_blank" className="underline">TheSaneWriter</a>, <a href="https://github.com/saiki-k" target="_blank" className="underline">saiki-k</a><br />
-          <a href="https://github.com/Br3zzly/hk-silksong-savegame-analyzer" target="_blank"className="underline">GitHub Repo</a><br />
-          <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3571462700" target="_blank" className="underline">Steam Guide</a><br />
-          <a href="https://www.buymeacoffee.com/Br3zzly" target="_blank" className="underline">Buy me a coffee</a>
+          {t('footer.i18nBy')}: <a href="https://github.com/Lu-Jiejie" target="_blank" className="underline">LuJiejie</a><br />
+          {t('footer.originalAuthor')}: <a href="https://github.com/br3zzly" target="_blank" className="underline">Br3zzly</a><br />
+          {t('footer.withHelp')}: <a href="https://github.com/theezeb" target="_blank" className="underline">theezeb</a>, <a href="https://github.com/btastic" target="_blank" className="underline">btastic</a>, <a href="https://github.com/TheSaneWriter" target="_blank" className="underline">TheSaneWriter</a>, <a href="https://github.com/saiki-k" target="_blank" className="underline">saiki-k</a><br />
+          <a href="https://github.com/Lu-Jiejie/hk-silksong-savegame-analyzer" target="_blank"className="underline">{t('footer.githubRepo')}</a>
         </footer>
       </div>
     </div>

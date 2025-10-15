@@ -1,10 +1,13 @@
 import { CATEGORIES, isItemUnlockedInPlayerSave } from "../../parsers/dictionary";
 import type { TabRenderProps } from "./types";
 import { formatSecondsToHMS } from "./utils";
+import { useI18n } from "../../i18n";
 
 export function StatsTab({ parsedJson, decrypted }: TabRenderProps) {
+  const { t } = useI18n();
+
   if (!decrypted || !parsedJson) {
-    return <div className="text-white text-center">Load a savefile to view "Stats" data.</div>;
+    return <div className="text-white text-center">{t("stats.loadSavefile")}</div>;
   }
 
   const statsCategory = CATEGORIES.find(cat => cat.name === "Stats");
@@ -25,16 +28,39 @@ export function StatsTab({ parsedJson, decrypted }: TabRenderProps) {
               {stats.map((item, index) => {
                 const { returnValue } = isItemUnlockedInPlayerSave(item.parsingInfo, parsedJson);
                 let displayValue = '';
-                if (item.name === 'Game Mode') {
-                  displayValue = returnValue === 1 ? 'Steel Soul' : returnValue === 0 ? 'Classic' : '';
-                } else if (item.name.toLowerCase() === 'playtime' && typeof returnValue === 'number') {
-                  displayValue = formatSecondsToHMS(returnValue);
-                } else if (returnValue !== undefined) {
-                  displayValue = String(returnValue);
+                let displayName = item.name;
+
+                // Translate stat names
+                if (item.id === 'stat_playtime') {
+                  displayName = t("stats.playtime");
+                  if (typeof returnValue === 'number') {
+                    displayValue = formatSecondsToHMS(returnValue);
+                  }
+                } else if (item.id === 'stat_rosaries') {
+                  displayName = t("stats.rosaries");
+                  if (returnValue !== undefined) {
+                    displayValue = String(returnValue);
+                  }
+                } else if (item.id === 'stat_shell_shards') {
+                  displayName = t("stats.shellShards");
+                  if (returnValue !== undefined) {
+                    displayValue = String(returnValue);
+                  }
+                } else if (item.id === 'stat_game_mode') {
+                  displayName = t("stats.gameMode");
+                  displayValue = returnValue === 1 ? t("stats.steelSoul") : returnValue === 0 ? t("stats.classic") : '';
+                } else {
+                  // Fallback for other stats
+                  if (typeof returnValue === 'number') {
+                    displayValue = formatSecondsToHMS(returnValue);
+                  } else if (returnValue !== undefined) {
+                    displayValue = String(returnValue);
+                  }
                 }
+
                 return (
-                  <tr key={index} className="border-b border-gray-700 last:border-b-0">      
-                    <td className="px-2 py-1 whitespace-nowrap">{item.name}</td>
+                  <tr key={index} className="border-b border-gray-700 last:border-b-0">
+                    <td className="px-2 py-1 whitespace-nowrap">{displayName}</td>
                     <td className="px-2 py-1 w-[100px] text-center whitespace-nowrap">{displayValue}</td>
                   </tr>
                 );
